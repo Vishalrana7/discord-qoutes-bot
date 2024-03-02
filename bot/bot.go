@@ -2,15 +2,20 @@ package bot
 
 import (
 	"discord-qoute-bot/config"
+	
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
+
 	"github.com/bwmarrin/discordgo"
-	
 )
 
 var BotID string
 var goBot *discordgo.Session
+
+//creating prefix for bot
+const prefix string = "!qtd"
 
 // Array to store qoutes
 
@@ -45,6 +50,8 @@ func Start() {
 
 	goBot.AddHandler(messageHandler)
 
+	
+
 	err = goBot.Open()
 
 	if err != nil {
@@ -60,17 +67,36 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "ping" {
+	//adding other args
+
+	args := strings.Split(m.Content, " ")
+
+	if args[0] != prefix {
+		return
+	}
+
+	if args[1] == "qoute" {
 		// _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
 
 		//random qoutes
 		rand.Seed(time.Now().Unix())
 		randomIndex := rand.Intn(len(qoutes))
-		randomQoute := qoutes[randomIndex]
+		//randomQoute := qoutes[randomIndex]
 
+		//adding embed and author func
+		author := discordgo.MessageEmbedAuthor{
+			Name : "Robert Greene",
+			
+		}
+		embed := discordgo.MessageEmbed{
+			Title: qoutes[randomIndex],
+			Author: &author,
+		}
 
-		_, _ = s.ChannelMessageSend(m.ChannelID, randomQoute)
+		//For calling random qoutes
+		// _, _ = s.ChannelMessageSend(m.ChannelID, randomQoute)
 
+		_, _ = s.ChannelMessageSendEmbed(m.ChannelID, &embed)
 
 	}
 }
